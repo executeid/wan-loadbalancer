@@ -48,8 +48,8 @@ In essence, the traffic flows as follows: a client on the local network sends tr
 1.  **Clone the repository:**
 
     ```bash
-    git clone <repository-url>
-    cd <repository-directory>
+    git clone https://github.com/executeid/wan-loadbalancer.git
+    cd wan-loadbalancer
     ```
 
 2.  **Build the `go-dispatch-proxy`:**
