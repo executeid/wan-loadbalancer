@@ -35,7 +35,7 @@ In essence, the traffic flows as follows: a client on the local network sends tr
 
 ## Requirements
 
--   A Linux machine with at least two network interfaces.
+-   A Linux machine with at least two network interfaces or for this project use single gigabit interface with vlan (read netplan config).
 -   `systemd` for managing services.
 -   `nftables` for firewall rules.
 -   `redsocks` for transparent proxying.

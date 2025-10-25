@@ -1,0 +1,31 @@
+network:
+  version: 2
+  ethernets:
+    enp0s31f6:
+      dhcp4: true
+
+  vlans:
+    enp0s31f6.1:
+      id: 1
+      link: enp0s31f6
+    enp0s31f6.3:
+      id: 3
+      link: enp0s31f6
+
+  bridges:
+    br0:
+      interfaces: [enp0s31f6.1]
+      parameters:
+        stp: false
+        forward-delay: 0
+      addresses: [10.1.1.1/24]
+      dhcp4: no
+      optional: true
+    br1:
+      interfaces: [enp0s31f6.3]
+      parameters:
+        stp: false
+        forward-delay: 0
+      addresses: [192.168.1.1/24]
+      dhcp4: no
+      optional: true
