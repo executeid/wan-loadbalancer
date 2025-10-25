@@ -1,0 +1,15 @@
+[Unit]
+Description=Redsocks transparent SOCKS proxy redirector
+Documentation=man:redsocks(8)
+Documentation=file:/usr/share/doc/redsocks/README.gz
+After=network.target
+
+[Service]
+Type=forking
+EnvironmentFile=/etc/default/redsocks
+ExecStartPre=/usr/sbin/redsocks -t -c ${CONFFILE}
+ExecStart=/usr/sbin/redsocks -c ${CONFFILE}
+LimitNOFILE=65536
+
+[Install]
+WantedBy=loadbalance.target

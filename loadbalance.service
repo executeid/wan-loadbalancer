@@ -1,0 +1,34 @@
+[Unit]
+Description=WAN Load Balancer Control Service
+After=network-online.target
+Wants=network-online.target
+Requires=nftables.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+
+# Start services in sequence
+ExecStart=/bin/systemctl start macvlan.service
+ExecStart=/bin/sleep 3
+ExecStart=/bin/systemctl restart captive.service
+ExecStart=/bin/sleep 1
+ExecStart=/bin/systemctl start go-dispatch-proxy.service
+ExecStart=/bin/sleep 2
+ExecStart=/bin/systemctl start redsocks.service
+ExecStart=/bin/sleep 2
+ExecStart=/bin/systemctl start nftables.service
+
+ExecStart=/usr/sbin/nft add element ip nat proxy_interfaces { "br0", "br1" }
+
+ExecStop=/usr/sbin/nft flush set ip nat proxy_interfaces
+
+# Stop in reverse order
+ExecStop=/bin/systemctl stop redsocks.service
+ExecStop=/bin/systemctl stop go-dispatch-proxy.service
+ExecStop=/bin/systemctl stop captive.service
+ExecStop=/bin/systemctl stop macvlan.service
+#ExecStop=/bin/systemctl restart nftables.service
+
+[Install]
+WantedBy=multi-user.target

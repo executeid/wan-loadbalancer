@@ -1,0 +1,23 @@
+[Unit]
+Description=Go Dispatch Proxy Load Balancer
+After=network-online.target macvlan.service
+Wants=network-online.target
+Requires=macvlan.service
+Before=redsocks.service
+
+[Service]
+Type=simple
+User=root
+# Use the wrapper script instead of calling go-dispatch-proxy directly
+ExecStart=/usr/local/bin/go-dispatch.sh
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+# Security (relaxed because we need to read interface info)
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=loadbalance.target

@@ -1,0 +1,20 @@
+[Unit]
+Description=Auto Login Captive Portal
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStartPre=/bin/sleep 10
+ExecStart=/usr/local/bin/captive_v2.2.sh
+Restart=always
+RestartSec=30
+User=root
+Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+# Optional: prevent overlapping runs if it hangs
+TimeoutStartSec=60
+KillMode=process
+
+[Install]
+WantedBy=loadbalance.target

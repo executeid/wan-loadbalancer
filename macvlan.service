@@ -1,0 +1,38 @@
+[Unit]
+Description=Create macvlan interfaces for WAN load balancing
+After=network-online.target sys-subsystem-net-devices-enp0s31f6.device
+Wants=network-online.target
+Before=network-target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+
+# Create wan1 macvlan
+ExecStart=/bin/sh -c 'ip link add link enp0s31f6 name wan1 type macvlan mode bridge || true'
+ExecStart=/bin/sh -c 'ip link set wan1 up'
+
+# Create wan2 macvlan
+ExecStart=/bin/sh -c 'ip link add link enp0s31f6 name wan2 type macvlan mode bridge || true'
+ExecStart=/bin/sh -c 'ip link set wan2 up'
+
+# Create wan2 macvlan
+ExecStart=/bin/sh -c 'ip link add link enp0s31f6 name wan3 type macvlan mode bridge || true'
+ExecStart=/bin/sh -c 'ip link set wan3 up'
+
+# Get DHCP
+ExecStartPost=/sbin/dhclient -v wan1
+ExecStartPost=/sbin/dhclient -v wan2
+ExecStartPost=/sbin/dhclient -v wan3
+ExecStartPost=/bin/sleep 3
+
+# Cleanup on stop
+ExecStop=/sbin/dhclient -r wan1
+ExecStop=/sbin/dhclient -r wan2
+ExecStop=/sbin/dhclient -r wan3
+ExecStop=/sbin/ip link delete wan1
+ExecStop=/sbin/ip link delete wan2
+ExecStop=/sbin/ip link delete wan3
+
+[Install]
+WantedBy=loadbalance.target
