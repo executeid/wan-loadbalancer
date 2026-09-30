@@ -5,16 +5,15 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-ExecStartPre=/bin/sleep 10
-ExecStart=/usr/local/bin/captive_v2.2.sh
+ExecStart=/usr/local/bin/captive.sh
 Restart=always
-RestartSec=30
+RestartSec=10
 User=root
 Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
-# Optional: prevent overlapping runs if it hangs
-TimeoutStartSec=60
-KillMode=process
+# Clean termination
+TimeoutStopSec=15
+KillMode=mixed
 
 [Install]
-WantedBy=loadbalance.target
+WantedBy=multi-user.target loadbalance.target

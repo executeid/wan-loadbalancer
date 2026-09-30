@@ -1,0 +1,27 @@
+# ============================================================
+# Captive Portal Auto-Login configuration
+# Install to: /etc/captive.conf
+# Permissions: 0600 (contains credentials)
+# ============================================================
+
+# --- Accounts: one "user:password" per line ---
+# Multiple accounts are tried in rotation (handles per-account
+# login limits, e.g. "already logged in 3 times").
+ACCOUNTS="
+username1@example.edu:password1
+username2@example.edu:password2
+"
+
+# --- Network interface (explicit, not auto-detected) ---
+# Check your interface name with: ip -br link
+INTERFACE="eth0"
+
+# --- Timing ---
+DELAY=30              # seconds between check cycles
+CONNECT_TIMEOUT=5     # curl --connect-timeout
+MAX_TIME=10           # curl --max-time
+
+# --- Captive portal endpoints (default: captive portal) ---
+CHECK_URL="http://www.gstatic.com/generate_204"
+LOGIN_URL="https://captive.example.edu:8009/index.php?zone=misc"
+ORIGIN="https://captive.example.edu:8009"

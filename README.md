@@ -31,9 +31,44 @@ In essence, the traffic flows as follows: a client on the local network sends tr
 -   Distributes internet traffic across multiple WAN connections.
 -   Automatic failover to a working connection.
 -   Transparent proxying of TCP traffic.
--   Automatic login to captive portals.
+-   Automatic login to captive portals (standalone or multi-WAN).
+-   One-line automated installation for any Linux computer.
+-   Credentials kept securely in `/etc/captive.conf` (mode 0600).
 
-## Requirements
+## Quick Install (Standalone Captive Portal Auto-Login)
+
+If you only want automatic captive portal login for your machine (laptop, PC, server) without the full load balancer:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/executeid/wan-loadbalancer/main/install.sh | sudo bash
+```
+
+Or for unattended / non-interactive installation:
+
+```bash
+sudo CAPTIVE_ACCOUNTS="username1@example.edu:password1
+username2@example.edu:password2" \
+     CAPTIVE_IFACE="ens224" \
+     bash -c "$(curl -fsSL https://raw.githubusercontent.com/executeid/wan-loadbalancer/main/install.sh)"
+```
+
+The installer will:
+- Auto-detect your active network interface.
+- Securely prompt for your captive portal username and password.
+- Save credentials to `/etc/captive.conf` with restricted `0600` permissions.
+- Install and enable `captive.service` via `systemd`.
+
+Useful commands:
+```bash
+sudo systemctl status captive.service    # Check service status
+sudo journalctl -u captive.service -f   # View live logs
+sudo nano /etc/captive.conf              # Edit credentials/interface
+sudo systemctl restart captive.service  # Apply changes
+```
+
+---
+
+## Full WAN Load Balancer Installation
 
 -   A Linux machine with at least two network interfaces or for this project use single gigabit interface with vlan (read netplan config).
 -   `systemd` for managing services.
@@ -75,14 +110,15 @@ In essence, the traffic flows as follows: a client on the local network sends tr
     Copy the scripts to `/usr/local/bin/`:
 
     ```bash
-    sudo cp scripts/captive_v2.2.sh /usr/local/bin/
+    sudo cp scripts/captive.sh /usr/local/bin/
     sudo cp scripts/go-dispatch.sh /usr/local/bin/
+    sudo ln -sf /usr/local/bin/captive.sh /usr/local/bin/captive_v2.2.sh
     ```
 
     Make the scripts executable:
 
     ```bash
-    sudo chmod +x /usr/local/bin/captive_v2.2.sh
+    sudo chmod +x /usr/local/bin/captive.sh
     sudo chmod +x /usr/local/bin/go-dispatch.sh
     ```
 
@@ -111,7 +147,23 @@ In essence, the traffic flows as follows: a client on the local network sends tr
 
 7.  **Configure the captive portal credentials:**
 
-    Edit `/usr/local/bin/captive_v2.2.sh` and add your usernames and passwords to the `USERS` and `PASSWORDS` arrays.
+    Configure credentials in `/etc/captive.conf` (recommended, mode 0600):
+
+    ```bash
+    sudo tee /etc/captive.conf << 'EOF'
+    ACCOUNTS="
+    username1@example.edu:password1
+    username2@example.edu:password2
+    "
+    # Explicit network interface (check with: ip -br link)
+    INTERFACE="wan1"
+    DELAY=30
+    EOF
+    sudo chmod 600 /etc/captive.conf
+    ```
+
+    *(See `captive.conf.example` for the full list of options. You can also
+    edit `/usr/local/bin/captive.sh` directly for defaults.)*
 
 8.  **Reload the `systemd` daemon:**
 
